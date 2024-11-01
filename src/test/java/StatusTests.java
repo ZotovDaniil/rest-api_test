@@ -31,4 +31,14 @@ public class StatusTests {
                 .log().all()
                 .body("total", is(20));
     }
+
+    @Test
+    void checkTotalWithSomeLogs() {
+        given()
+                .log().uri()
+                .get("https://selenoid.autotests.cloud/status")
+                .then()
+                .log().body()
+                .body("total", is(20));
+    }
 }
