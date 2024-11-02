@@ -1,15 +1,23 @@
+package tests;
+
+import models.LoginBodyModel;
+import models.LoginResponseModel;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class LoginTest {
     @Test
     void successfulLoginTest() {
-        String authData = "{\"email\": \"eve.holt@reqres.in\", \"password\": \"cityslicka\"}";
+        LoginBodyModel authData = new LoginBodyModel();
+        authData.setEmail("eve.holt@reqres.in");
+        authData.setPassword("cityslicka");
 
-        given()
+
+        LoginResponseModel response = given()
                 .body(authData)
                 .contentType(JSON)
                 .log().uri()
@@ -21,7 +29,8 @@ public class LoginTest {
                 .log().status()
                 .log().body()
                 .statusCode(200)
-                .body("token", is("QpwL5tke4Pnpja7X4"));
+                .extract().as(LoginResponseModel.class);
+        assertEquals("QpwL5tke4Pnpja7X4", response.getToken());
     }
 
     @Test
@@ -99,6 +108,7 @@ public class LoginTest {
                 .statusCode(400)
                 .body("error", is("Missing email or username"));
     }
+
     @Test
     void wrongBodyTest() {
         String authData = "%}";

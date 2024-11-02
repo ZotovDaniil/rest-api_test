@@ -1,3 +1,5 @@
+package tests;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -71,5 +73,68 @@ public class ReqresTest {
                 .body("data.color", is("#C74375"))
                 .body("data.pantone_value", is("17-2031"))
                 .body("support.url", is("https://reqres.in/#support-heading"));
+    }
+    @Test
+    @DisplayName("Успешное удаление пользователя")
+    void deleteUserTest(){
+
+
+        given()
+
+                .contentType(JSON)
+                .log().uri()
+                .when()
+                .delete("https://reqres.in/api/users?page=2")
+
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(204);
+
+    }
+    @Test
+    @DisplayName("Неуспешная регистрация пользователя")
+    void unsuccessfulRegisterTest() {
+        String registerData = "{\"email\": \"sydney@fife\"}";
+
+        given()
+                .body(registerData)
+                .contentType(JSON)
+                .log().uri()
+                .log().method()
+
+                .when()
+                .post("https://reqres.in/api/register")
+
+
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(400)
+                .body("error", is("Missing password"));
+
+    }
+    @Test
+    @DisplayName("Успешная регистрация пользователя")
+    void successfulRegisterTest() {
+        String registerData = "{\"email\": \"eve.holt@reqres.in\", \"password\": \"pistol\"}";
+
+        given()
+                .body(registerData)
+                .contentType(JSON)
+                .log().uri()
+                .log().method()
+
+                .when()
+                .post("https://reqres.in/api/register")
+
+
+                .then()
+                .log().status()
+                .log().body()
+                .statusCode(200)
+                .body("id", is(4))
+                .body("token", is("QpwL5tke4Pnpja7X4"));
+
     }
 }
