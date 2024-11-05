@@ -13,6 +13,8 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static specs.LoginSpec.loginRequestSpec;
+import static specs.LoginSpec.loginResponseSpec;
 
 public class LoginTest {
     @Test
@@ -121,26 +123,49 @@ public class LoginTest {
         authData.setPassword("cityslicka");
 
 
-            LoginResponseLombokModel response = step("Make request", () ->
-                    given()
-                    .body(authData)
-                    .contentType(JSON)
-                    .log().uri()
-                    .log().headers()
-                    .filter(withCustomTemplates())
+        LoginResponseLombokModel response = step("Make request", () ->
+                given()
+                        .body(authData)
+                        .contentType(JSON)
+                        .log().uri()
+                        .log().headers()
+                        .filter(withCustomTemplates())
 
-                    .when()
-                    .post("https://reqres.in/api/login")
+                        .when()
+                        .post("https://reqres.in/api/login")
 
-                    .then()
-                    .log().status()
-                    .log().body()
+                        .then()
+                        .log().status()
+                        .log().body()
 
-                    .statusCode(200)
-                    .extract().as(LoginResponseLombokModel.class)
+                        .statusCode(200)
+                        .extract().as(LoginResponseLombokModel.class)
         );
         step("Check request", () ->
-            assertEquals("QpwL5tke4Pnpja7X4", response.getToken())
+                assertEquals("QpwL5tke4Pnpja7X4", response.getToken())
+        );
+    }
+
+    @Test
+    void successfulLoginWithSpecsTest() {
+        LoginBodyLombokModel authData = new LoginBodyLombokModel();
+        authData.setEmail("eve.holt@reqres.in");
+        authData.setPassword("cityslicka");
+
+
+        LoginResponseLombokModel response = step("Make request", () ->
+                given(loginRequestSpec)
+                            .body(authData)
+
+                        .when()
+                            .post()
+
+                        .then()
+                            .spec(loginResponseSpec)
+                            .extract().as(LoginResponseLombokModel.class)
+        );
+        step("Check request", () ->
+                assertEquals("QpwL5tke4Pnpja7X4", response.getToken())
         );
     }
 

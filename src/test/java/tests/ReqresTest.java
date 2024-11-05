@@ -1,36 +1,53 @@
 package tests;
 
+import io.qameta.allure.Allure;
+import models.lombok.LoginResponseLombokModel;
+import models.lombok.ReqresBodyLombokModel;
+import models.lombok.ReqresResponseLombokModel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import static io.qameta.allure.Allure.step;
+import static helpers.CustomAllureListener.withCustomTemplates;
 import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
+import static jdk.dynalink.linker.support.Guards.isNotNull;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static specs.LoginSpec.loginResponseSpec;
+import static specs.ReqresSpec.reqresRequestSpec;
+import static specs.ReqresSpec.reqresResponseSpec;
+
 
 public class ReqresTest {
     @Test
     @DisplayName("Успешное обновление данных")
     void successfulUpdateTest() {
-        String updateData = "{\"name\": \"morpheus\", \"job\": \"zion resident\"}";
+        ReqresBodyLombokModel updateData = new ReqresBodyLombokModel();
+        updateData.setName("morpheus");
+        updateData.setJob("zion resident");
 
-        given()
-                .body(updateData)
-                .contentType(JSON)
-                .log().uri()
-                .log().method()
-
-                .when()
-                .patch("https://reqres.in/api/users/2")
+        ReqresResponseLombokModel response = step("Make request", () ->
+                given(reqresRequestSpec)
+                        .body(updateData)
 
 
-                .then()
-                .log().status()
-                .log().body()
-                .statusCode(200)
-                .body("name", is("morpheus"))
-                .body("job", is("zion resident"))
-                .body("updatedAt", is(notNullValue()));
+                        .when()
+                        .patch("https://reqres.in/api/users/2")
+
+
+                        .then()
+                        .spec(reqresResponseSpec)
+                        .extract().as(ReqresResponseLombokModel.class)
+        );
+        step("Check request", () -> {
+            assertEquals("morpheus", response.getName());
+            assertEquals("zion resident", response.getJob());
+            assertNotEquals(0, response.getUpdatedAt());
+        });
     }
 
     @Test
@@ -40,17 +57,18 @@ public class ReqresTest {
 
         given()
 
-                   .contentType(JSON)
-                   .log().uri()
+                .contentType(JSON)
+                .log().uri()
                 .when()
-                   .get("https://reqres.in/api/users/23")
+                .get("https://reqres.in/api/users/23")
 
                 .then()
-                   .log().status()
-                   .log().body()
-                   .statusCode(404);
+                .log().status()
+                .log().body()
+                .statusCode(404);
 
     }
+
     @Test
     void successfulGetResourceTest() {
 
@@ -74,9 +92,10 @@ public class ReqresTest {
                 .body("data.pantone_value", is("17-2031"))
                 .body("support.url", is("https://reqres.in/#support-heading"));
     }
+
     @Test
     @DisplayName("Успешное удаление пользователя")
-    void deleteUserTest(){
+    void deleteUserTest() {
 
 
         given()
@@ -92,6 +111,7 @@ public class ReqresTest {
                 .statusCode(204);
 
     }
+
     @Test
     @DisplayName("Неуспешная регистрация пользователя")
     void unsuccessfulRegisterTest() {
@@ -114,6 +134,7 @@ public class ReqresTest {
                 .body("error", is("Missing password"));
 
     }
+
     @Test
     @DisplayName("Успешная регистрация пользователя")
     void successfulRegisterTest() {
