@@ -22,4 +22,65 @@ public class ReqresSpec {
             .log(STATUS)
             .log(BODY)
             .build();
+
+    public static ResponseSpecification userNotFoundResponseSpec = new ResponseSpecBuilder()
+            .expectStatusCode(404)
+            .log(STATUS)
+            .log(BODY)
+            .build();
+
+    public static RequestSpecification userNotFoundRequestSpec = with()
+            .contentType(JSON)
+            .log().uri()
+            .log().method()
+            .filter(withCustomTemplates());
+
+    public static ResponseSpecification getResourcesResponseSpec = new ResponseSpecBuilder()
+            .expectStatusCode(200)
+            .log(STATUS)
+            .log(BODY)
+            .build();
+
+    public static RequestSpecification getResourcesRequestSpec = with()
+            .contentType(JSON)
+            .log().uri()
+            .log().method()
+            .filter(withCustomTemplates());
+
+    public static RequestSpecification deleteUserRequestSpec = with()
+            .contentType(JSON)
+            .log().uri()
+            .log().method()
+            .filter(withCustomTemplates());
+
+    public static ResponseSpecification deleteUserResponseSpec = new ResponseSpecBuilder()
+            .expectStatusCode(204)
+            .log(STATUS)
+            .log(BODY)
+            .build();
+
+    public static RequestSpecification unsuccessfulRegisterUserRequestSpec = with()
+            .contentType(JSON)
+            .log().uri()
+            .log().method()
+            .filter(withCustomTemplates());
+
+    public static ResponseSpecification unsuccessfulRegisterUserResponseSpec = new ResponseSpecBuilder()
+            .expectStatusCode(400)
+            .log(STATUS)
+            .log(BODY)
+            .build();
+
+    public static RequestSpecification successfulRegisterUserRequestSpec = with()
+            .contentType(JSON)
+            .log().uri()
+            .log().method()
+            .filter(withCustomTemplates());
+
+    public static ResponseSpecification successfulRegisterUserResponseSpec = new ResponseSpecBuilder()
+            .expectStatusCode(200)
+            .log(STATUS)
+            .log(BODY)
+            .build();
+
 }

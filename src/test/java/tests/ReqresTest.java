@@ -1,28 +1,23 @@
 package tests;
 
 import io.qameta.allure.Allure;
-import models.lombok.LoginResponseLombokModel;
-import models.lombok.ReqresBodyLombokModel;
-import models.lombok.ReqresResponseLombokModel;
+import io.restassured.specification.ResponseSpecification;
+import models.lombok.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.qameta.allure.Allure.step;
-import static helpers.CustomAllureListener.withCustomTemplates;
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.with;
 import static io.restassured.http.ContentType.JSON;
-import static jdk.dynalink.linker.support.Guards.isNotNull;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static specs.LoginSpec.loginResponseSpec;
-import static specs.ReqresSpec.reqresRequestSpec;
-import static specs.ReqresSpec.reqresResponseSpec;
+import static specs.ReqresSpec.*;
 
 
-public class ReqresTest {
+public class ReqresTest extends TestBase {
     @Test
     @DisplayName("Успешное обновление данных")
     void successfulUpdateTest() {
@@ -34,14 +29,13 @@ public class ReqresTest {
                 given(reqresRequestSpec)
                         .body(updateData)
 
-
                         .when()
-                        .patch("https://reqres.in/api/users/2")
+                            .patch("/api/users/2")
 
 
                         .then()
-                        .spec(reqresResponseSpec)
-                        .extract().as(ReqresResponseLombokModel.class)
+                            .spec(reqresResponseSpec)
+                            .extract().as(ReqresResponseLombokModel.class)
         );
         step("Check request", () -> {
             assertEquals("morpheus", response.getName());
@@ -55,107 +49,97 @@ public class ReqresTest {
     void userNotFoundTest() {
 
 
-        given()
+        given(userNotFoundRequestSpec)
 
-                .contentType(JSON)
-                .log().uri()
+
                 .when()
                 .get("https://reqres.in/api/users/23")
 
                 .then()
-                .log().status()
-                .log().body()
-                .statusCode(404);
+                .spec(userNotFoundResponseSpec);
 
     }
 
     @Test
+    @DisplayName("Успешное получение данных из запроса")
     void successfulGetResourceTest() {
 
-
-        given()
-                .contentType(JSON)
-                .log().method()
-                .log().uri()
-
+        GetResourcesReqresLombokModel response = step("Make request", () ->
+        given(getResourcesRequestSpec)
                 .when()
-                .get("https://reqres.in/api/unknown/2")
+                .get("/api/unknown/2")
 
                 .then()
-                .log().status()
-                .log().body()
-                .statusCode(200)
-                .body("data.id", is(2))
-                .body("data.name", is("fuchsia rose"))
-                .body("data.year", is(2001))
-                .body("data.color", is("#C74375"))
-                .body("data.pantone_value", is("17-2031"))
-                .body("support.url", is("https://reqres.in/#support-heading"));
+                .spec(getResourcesResponseSpec)
+                .extract().as(GetResourcesReqresLombokModel.class)
+        );
+        step("Check request", () -> {
+            assertEquals("2", response.getData().getId());
+            assertEquals("fuchsia rose", response.getData().getName());
+            assertEquals("2001", response.getData().getYear());
+            assertEquals("#C74375", response.getData().getColor());
+            assertEquals("17-2031", response.getData().getPantone_value());
+            assertEquals("https://reqres.in/#support-heading", response.getSupport().getUrl());
+
+
+        });
     }
 
     @Test
     @DisplayName("Успешное удаление пользователя")
     void deleteUserTest() {
 
-
-        given()
-
-                .contentType(JSON)
-                .log().uri()
+        step("Make request", () ->
+            given(deleteUserRequestSpec)
                 .when()
-                .delete("https://reqres.in/api/users?page=2")
-
+                .delete("/api/users?page=2")
                 .then()
-                .log().status()
-                .log().body()
-                .statusCode(204);
-
+                    .spec(deleteUserResponseSpec)
+        );
     }
 
     @Test
     @DisplayName("Неуспешная регистрация пользователя")
     void unsuccessfulRegisterTest() {
-        String registerData = "{\"email\": \"sydney@fife\"}";
+        unsuccessfulRegisterUserLombokModel registerData = new unsuccessfulRegisterUserLombokModel();
+        registerData.setEmail("sydney@fife");
 
-        given()
-                .body(registerData)
-                .contentType(JSON)
-                .log().uri()
-                .log().method()
-
+        unsuccessfulRegisterUserErrorResponseLombokModel response = step("Make request", () ->
+        given(unsuccessfulRegisterUserRequestSpec)
                 .when()
-                .post("https://reqres.in/api/register")
-
-
+                    .post("/api/register")
                 .then()
-                .log().status()
-                .log().body()
-                .statusCode(400)
-                .body("error", is("Missing password"));
+                    .spec(unsuccessfulRegisterUserResponseSpec)
+                    .extract().as(unsuccessfulRegisterUserErrorResponseLombokModel.class)
+        );
+        step("Check request", () ->
+            assertEquals("Missing email or username", response.getError())
+        );
 
     }
 
     @Test
     @DisplayName("Успешная регистрация пользователя")
     void successfulRegisterTest() {
-        String registerData = "{\"email\": \"eve.holt@reqres.in\", \"password\": \"pistol\"}";
-
-        given()
+        successfulRegisterUserLombokModel registerData = new successfulRegisterUserLombokModel();
+        registerData.setEmail("eve.holt@reqres.in");
+        registerData.setPassword("pistol");
+        successfulRegisterUserResponseLombokModel response = step("Make request", () ->
+        given(successfulRegisterUserRequestSpec)
                 .body(registerData)
-                .contentType(JSON)
-                .log().uri()
-                .log().method()
 
                 .when()
-                .post("https://reqres.in/api/register")
-
-
+                    .post("/api/register")
                 .then()
-                .log().status()
-                .log().body()
-                .statusCode(200)
-                .body("id", is(4))
-                .body("token", is("QpwL5tke4Pnpja7X4"));
+                    .spec(successfulRegisterUserResponseSpec)
+                    .extract().as(successfulRegisterUserResponseLombokModel.class)
+        );
+        step("Check request", () -> {
+            assertEquals("4", response.getId());
+            assertEquals("QpwL5tke4Pnpja7X4", response.getToken());
+        });
+
+
 
     }
 }
