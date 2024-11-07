@@ -7,10 +7,7 @@ import io.qameta.allure.Allure;
 import io.qameta.allure.selenide.AllureSelenide;
 import io.restassured.specification.ResponseSpecification;
 import models.lombok.*;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.util.Map;
@@ -27,7 +24,7 @@ import static specs.ReqresSpec.*;
 
 
 public class ReqresTest extends TestBase {
-
+@Tag("reqres")
     @BeforeAll
     static void beforeAll() {
         com.codeborne.selenide.Configuration.browserSize = "1920x1080";
