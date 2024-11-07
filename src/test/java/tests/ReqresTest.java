@@ -22,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static specs.ReqresSpec.*;
 
-
-public class ReqresTest extends TestBase {
 @Tag("reqres")
+public class ReqresTest extends TestBase {
+
     @BeforeAll
     static void beforeAll() {
         com.codeborne.selenide.Configuration.browserSize = "1920x1080";
