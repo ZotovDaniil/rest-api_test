@@ -27,7 +27,7 @@ allure {
 }
 
 dependencies {
-    testImplementation (
+    testImplementation(
             'com.codeborne:selenide-selenoid:7.4.2',
             'com.github.javafaker:javafaker:1.0.2',
             'org.selenide:selenide-selenoid:2.3.8',
@@ -56,6 +56,17 @@ tasks.withType(Test) {
 task reqres_test(type: Test) {
     useJUnitPlatform {
         includeTags("reqres")
+    }
+}
+
+task api_test(type: Test) {
+    useJUnitPlatform {
+        includeTags("API")
+    }
+}
+task ui_test(type: Test) {
+    useJUnitPlatform {
+        includeTags("UI")
     }
 }
 
